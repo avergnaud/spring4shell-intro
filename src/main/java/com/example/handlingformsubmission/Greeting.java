@@ -5,6 +5,9 @@ public class Greeting {
     private long id;
     private String content;
 
+    /* example */
+    public SomeNestedPOJO someNestedPOJO;
+
     public long getId() {
         return id;
     }
