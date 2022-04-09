@@ -74,7 +74,7 @@ ou
 ## call stack
 
 GreetingController.java :
-```
+```java
 @PostMapping("/greeting")
 public String greetingSubmit(@ModelAttribute Greeting greeting, Model model) {
     model.addAttribute("greeting", greeting);
@@ -100,6 +100,53 @@ On voit que Spring conserve une référence à l'objet Class de l'instance `gree
 (2) Spring peut aussi d'accéder à des attributs imbriqués. Cette fonctionnalité est founrnie par la classe `AbstractNestablePropertyAccessor`
 * [source](https://github.com/spring-projects/spring-framework/blob/8baf404893037951ac29393a41d40af4fa11775b/spring-beans/src/main/java/org/springframework/beans/AbstractNestablePropertyAccessor.java#L622)
 * [javadoc](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/beans/AbstractNestablePropertyAccessor.html)
+
+```
+curl -X POST \
+ -F 'id=1234' \
+ -F 'content=some_content' \
+ -F 'someNestedPOJO.test=some_test_value' \
+ http://2020P062.local:8080/spring4shell-intro/greeting
+```
+
+Côté serveur, Spring alimente bien la référence à SomeNestedPOJO :
+
+![nested pojo 1](./doc/nested_prop_1.PNG?raw=true)
+
+![nested pojo 2](./doc/nested_prop_2.PNG?raw=true)
+
+Dans la pile d'appels, la valorisation des properties et _nested properties_ est faite par `AbstractNestablePropertyAccessor.setPropertyValue`
+
+(3) Encore plus haut dans la pile d'appels, la méthode `WebDataBinder.doBind` appelle `WebDataBinder.checkAllowedFields`
+
+Cela permet de comprendre [une solution de contournement proposée par Spring](https://spring.io/blog/2022/03/31/spring-framework-rce-early-announcement#suggested-workarounds) :
+
+En effet, on va voir que la faille de sécurité provient de cet accès à la référence de Class.
+Donc En AOP, on récupère le WebDataBinder, pour interdire à Spring de valoriser cette property.
+
+```java
+@ControllerAdvice
+@Order(Ordered.LOWEST_PRECEDENCE)
+public class BinderControllerAdvice {
+
+    @InitBinder
+    public void setAllowedFields(WebDataBinder dataBinder) {
+         String[] denylist = new String[]{"class.*", "Class.*", "*.class.*", "*.Class.*"};
+         dataBinder.setDisallowedFields(denylist);
+    }
+
+}
+```
+
+> ### Point de situation
+> On sait que :
+> * Spring valorise les attributs passés en HTTP POST (un utilisateur les envoie à travers le formulaire)
+> * Spring valorise les attributs du POJO `@ModelAttribute Greeting greeting` ET un attribut `class` de type Class
+> * Spring peut valoriser des _nested properties_ pour tous ces attributs
+> 
+> &#8594; Est-ce qu'on pourrait valoriser certains attributs intéressants imbriqués sous `class` ?
+
+..
 
 
 

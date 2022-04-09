@@ -24,4 +24,11 @@ public class Greeting {
         this.content = content;
     }
 
+    /* example */
+    public SomeNestedPOJO getSomeNestedPOJO() {
+        return someNestedPOJO;
+    }
+    public void setSomeNestedPOJO(SomeNestedPOJO someNestedPOJO) {
+        this.someNestedPOJO = someNestedPOJO;
+    }
 }
