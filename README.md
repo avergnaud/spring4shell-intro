@@ -1,3 +1,18 @@
+<h1>Introduction à Spring(4)Shell</h1>
+
+- [Spring(4)Shell](#spring4shell-intro)
+  - [build](#build)
+  - [deploy](#deploy)
+  - [run](#run)
+  - [exploit](#exploit)
+  - [patch](#patch)
+  - [Work around](#work-around)
+- [Explication](#explication)
+  - [setup](#setup)
+  - [Spring](#spring)
+  - [Tomcat et jdk9+](#tomcat-et-jdk9)
+  - [exploit](#exploit)
+
 # spring4shell intro
 
 Spring4Shell (ou SpringShell) est une faille de sécurité importante, révélée le 29 mars, patchée le 31.
@@ -272,6 +287,3 @@ protected void doGet(HttpServletRequest request, HttpServletResponse resp) throw
 
 Ce payload est trop compliqué à envoyer en curl/bash. On utilise `exploit.py`.
 
-
-
-C:\Users\a.vergnaud\AppData\Local\Programs\Python\Python39\python.exe C:/Users/a.vergnaud/dev/spring4shell/spring4shell-intro/exp.py --url http://192.168.0.31:8080/spring4shell-intro/greeting
